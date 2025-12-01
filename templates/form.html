@@ -56,12 +56,41 @@
         font-size: 0.8rem;
         color: #666;
       }
+      .wallet-box {
+        margin-bottom: 10px;
+        padding: 8px;
+        border-radius: 6px;
+        background: #eef2ff;
+        font-size: 0.85rem;
+      }
+      .wallet-box small {
+        color: #4b5563;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>農業保險申請表</h1>
+
+      <!-- 連接錢包區塊 -->
+      <div class="wallet-box">
+        <button
+          type="button"
+          id="connect-wallet-btn"
+          style="width: 100%; margin-top: 0; margin-bottom: 8px;"
+        >
+          連接 MetaMask 錢包（選填）
+        </button>
+        <small>
+          當前錢包地址：
+          <span id="wallet-address">尚未連接</span>
+        </small>
+      </div>
+
       <form method="post" action="/apply">
+        <!-- 隱藏欄位：一併把錢包地址送到後端 -->
+        <input type="hidden" name="walletAddress" id="walletAddress" />
+
         <label>
           農民姓名（必填）
           <input type="text" name="name" required />
@@ -86,10 +115,7 @@
           作物種類（必填）
           <select name="crop" required>
             <option value="">請選擇</option>
-            <option value="rice">水稻</option>
-            <option value="banana">香蕉</option>
-            <option value="pear">梨子</option>
-            <option value="other">其他</option>
+            <option value="mango">芒果</option>
           </select>
         </label>
 
@@ -132,5 +158,8 @@
         <button type="submit">送出申請</button>
       </form>
     </div>
+
+    <!-- 很重要：載入 wallet.js -->
+    <script src="{{ url_for('static', filename='js/wallet.js') }}"></script>
   </body>
 </html>
