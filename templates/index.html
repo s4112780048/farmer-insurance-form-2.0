@@ -2,126 +2,464 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
-    <title>農業保險線上申請</title>
+    <title>FarmGuard 農業保險平台</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <style>
       * {
         box-sizing: border-box;
       }
+
       body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
-        background: #f5f7fb;
         margin: 0;
-        padding: 0;
-        color: #222;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #1f2933;
+        background: #f7fafc;
+        position: relative; /* ✅ 讓 ::before 可以定位 */
       }
-      .wrapper {
-        max-width: 720px;
-        margin: 0 auto;
-        padding: 24px 16px 40px;
+
+      /* ✅ 背景圖片（可調透明度） */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("{{ url_for('static', filename='img/bg.png') }}");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;      
+        opacity: 0.20;               /* ✅ 透明度：0~1 */
+        z-index: -1;                 
+        pointer-events: none;        
       }
-      header {
-        text-align: center;
-        margin-bottom: 20px;
-      }
-      h1 {
-        font-size: 1.9rem;
-        margin: 0 0 8px;
-      }
-      .subtitle {
-        font-size: 0.95rem;
-        color: #666;
-      }
-      .card {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 16px 18px;
-        margin-bottom: 14px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-      }
-      .card h2 {
-        font-size: 1.1rem;
-        margin: 0 0 8px;
-      }
-      .card p,
-      .card ul {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin: 0;
-        color: #444;
-      }
-      .card ul {
-        padding-left: 20px;
-        margin-top: 4px;
-      }
-      .btn-primary {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-top: 18px;
-        padding: 12px;
-        font-size: 1.1rem;
-        border-radius: 999px;
+
+      a {
         text-decoration: none;
-        background: #2563eb;
-        color: #ffffff;
-        border: none;
+        color: inherit;
       }
-      .btn-primary:active {
+
+      /* NAVBAR */
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .nav-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* ✅ logo 放大（你要更大就再加 width/height） */
+      .logo-img {
+        width: 140px;
+        height: auto;
+        object-fit: contain;
+        display: block;
+      }
+
+      /* 原本的 logo-text 不用刪也沒關係（HTML 已經不會用到） */
+      .logo-text {
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        font-size: 1.05rem;
+        color: #1a202c;
+      }
+
+      .nav-links {
+        display: none;
+        gap: 24px;
+        font-size: 0.95rem;
+        color: #4a5568;
+      }
+
+      .nav-links a:hover {
+        color: #1a202c;
+      }
+
+      .nav-cta {
+        display: none;
+      }
+
+      .btn-purple {
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: #805ad5;
+        color: #ffffff;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+      }
+
+      /* 讓按鈕滑鼠經過會變大 + 更有手感 */
+      .btn-purple,
+      .btn-primary,
+      .btn-outline {
+        transition: transform 160ms ease, box-shadow 160ms ease;
+        will-change: transform;
+      }
+
+      .btn-purple:hover,
+      .btn-primary:hover,
+      .btn-outline:hover {
+        transform: scale(1.06);
+        box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+      }
+
+      /* 按下去的感覺 */
+      .btn-purple:active,
+      .btn-primary:active,
+      .btn-outline:active {
         transform: scale(0.98);
       }
-      .footer {
+      .card {
+        transition: transform 160ms ease, box-shadow 160ms ease;
+        will-change: transform;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 26px rgba(15, 23, 42, 0.10);
+      }
+
+      @media (hover: none) {
+        .btn-purple:hover,
+        .btn-primary:hover,
+        .btn-outline:hover,
+        .card:hover {
+          transform: none;
+          box-shadow: none;
+        }
+      }
+      /* HERO */
+      .hero {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 40px 20px 32px;
         text-align: center;
+      }
+
+      .hero-eyebrow {
         font-size: 0.8rem;
-        color: #888;
-        margin-top: 18px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: #7b8794;
+        margin-bottom: 10px;
+      }
+
+      .hero-title {
+        font-size: 2.1rem;
+        font-weight: 700;
+        color: #102a43;
+        margin: 0 0 10px;
+      }
+
+      .hero-title span {
+        color: #2b6cb0;
+      }
+
+      .hero-subtitle {
+        max-width: 640px;
+        margin: 0 auto;
+        font-size: 0.98rem;
+        color: #62727e;
+        line-height: 1.7;
+      }
+
+      .hero-actions {
+        margin-top: 24px;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .btn-primary {
+        padding: 11px 24px;
+        border-radius: 999px;
+        border: none;
+        background: #3182ce;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+
+      .btn-outline {
+        padding: 10px 20px;
+        border-radius: 999px;
+        border: 1px solid #cbd5e0;
+        background: #ffffff;
+        font-size: 0.9rem;
+        color: #2d3748;
+        cursor: pointer;
+      }
+
+      /* CARD GRID */
+      .grid-section {
+        max-width: 1120px;
+        margin: 0 auto 40px;
+        padding: 0 20px 40px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        padding: 14px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 120px;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+
+      .card-icon-circle {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+      }
+
+      .card-title {
+        font-weight: 600;
+        font-size: 0.98rem;
+        color: #243b53;
+      }
+
+      .card-body {
+        font-size: 0.88rem;
+        color: #62727e;
+        line-height: 1.5;
+        margin-bottom: 12px;
+      }
+
+      .card-footer {
+        font-size: 0.86rem;
+        font-weight: 500;
+        color: #2b6cb0;
+      }
+
+      .card-footer span {
+        font-size: 0.9em;
+      }
+
+      /* 不同色系 */
+      .card-blue {
+        border-color: #c3dafe;
+        background: #f7fbff;
+      }
+
+      .card-yellow {
+        border-color: #f6e05e;
+        background: #fffdf5;
+      }
+
+      .card-green {
+        border-color: #9ae6b4;
+        background: #f3fff5;
+      }
+
+      .card-purple {
+        border-color: #d6bcfa;
+        background: #faf5ff;
+      }
+
+      .icon-blue {
+        background: #ebf4ff;
+        color: #2b6cb0;
+      }
+
+      .icon-yellow {
+        background: #fefcbf;
+        color: #b7791f;
+      }
+
+      .icon-green {
+        background: #c6f6d5;
+        color: #2f855a;
+      }
+
+      .icon-purple {
+        background: #e9d8fd;
+        color: #6b46c1;
+      }
+
+      /* FOOTER */
+      footer {
+        border-top: 1px solid #e2e8f0;
+        padding: 16px 20px 20px;
+        font-size: 0.8rem;
+        color: #9fb3c8;
+        text-align: center;
+      }
+
+      @media (min-width: 768px) {
+        .nav-links {
+          display: flex;
+        }
+
+        .nav-cta {
+          display: block;
+        }
+
+        .hero-title {
+          font-size: 2.6rem;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
       }
     </style>
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>農業保險線上申請</h1>
-        <p class="subtitle">
-          請先準備相關資料，再點選下方按鈕開始填寫保單申請表。
+    <!-- NAVBAR -->
+    <header class="nav">
+      <div class="nav-inner">
+        <div class="nav-left">
+          <!-- ✅ 只留 logo（點一下回首頁） -->
+          <a href="/">
+            <img
+              src="{{ url_for('static', filename='img/farmguard-logo.png') }}"
+              alt="FarmGuard Logo"
+              class="logo-img"
+            />
+          </a>
+        </div>
+
+        <nav class="nav-links">
+          <a href="#about">Home</a>
+          <a href="#about">About us</a>
+          <a href="#work">Work with us</a>
+          <a href="#contact">Contact us</a>
+        </nav>
+
+        <div class="nav-cta">
+          <a href="/apply">
+            <button class="btn-purple" type="button">線上投保</button>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <main>
+      <section id="about" class="hero">
+        <div class="hero-eyebrow">農業保險，為在地農民設計</div>
+        <h1 class="hero-title">
+          讓農業保險更<span>公平</span>、更<span>好申請</span>
+        </h1>
+        <p class="hero-subtitle">
+          FarmGuard 是一個專門協助農民與承辦單位管理保單資料的線上平台。
+          讓投保流程更透明、理賠更有依據，也為未來鏈上保險打好資料基礎。
         </p>
-      </header>
 
-      <div class="card">
-        <h2>一、填寫前請先準備</h2>
-        <ul>
-          <li>投保農民姓名、身分證字號</li>
-          <li>聯絡電話（手機、市話擇一或兩者）</li>
-          <li>耕作地點：縣市、鄉鎮市區、村里、地段</li>
-          <li>作物種類與耕作面積（公頃或分）</li>
-          <li>匯款銀行帳號（理賠撥款用）</li>
-        </ul>
-      </div>
+        <div class="hero-actions">
+          <a href="/apply">
+            <button class="btn-primary" type="button">立即填寫保單申請表</button>
+          </a>
+          <a href="#work">
+            <button class="btn-outline" type="button">了解合作方式</button>
+          </a>
+        </div>
+      </section>
 
-      <div class="card">
-        <h2>二、填寫說明</h2>
-        <ul>
-          <li>請依實際耕作狀況填寫，如有疑問可向承辦人員詢問。</li>
-          <li>若同一人有多塊地或多種作物，可依指示重複填寫表單。</li>
-          <li>送出後系統會自動紀錄填寫時間，請留意聯絡電話是否正確。</li>
-        </ul>
-      </div>
+      <!-- GRID CARDS -->
+      <section id="work" class="grid-section">
+        <div class="grid">
+          <!-- Partner & Build -->
+          <article class="card card-blue">
+            <div class="card-header">
+              <div class="card-icon-circle icon-blue">🤝</div>
+              <div class="card-title">Partner &amp; Build</div>
+            </div>
+            <div class="card-body">
+              與地方政府、農會或保險公司合作，快速建立符合在地需求的芒果保險方案，
+              並用同一套線上表單蒐集所有投保資料。
+            </div>
+            <div class="card-footer">
+              <span>規劃保單流程 ↗</span>
+            </div>
+          </article>
 
-      <div class="card">
-        <h2>三、注意事項</h2>
-        <ul>
-          <li>本系統僅供投保資料彙整，實際承保以保險公司審核為準。</li>
-          <li>若需修改已送出的資料，請與承辦單位聯繫協助更正。</li>
-          <li>請勿在公共電腦上儲存個人身分證字號或金融帳號資訊。</li>
-        </ul>
-      </div>
+          <!-- Invest -->
+          <article class="card card-yellow">
+            <div class="card-header">
+              <div class="card-icon-circle icon-yellow">💰</div>
+              <div class="card-title">Invest</div>
+            </div>
+            <div class="card-body">
+              為創新型農業保險提供資金管道，結合氣象指數與產量資料，
+              打造更可控的風險模型與透明的理賠機制。
+            </div>
+            <div class="card-footer">
+              <span>了解資金合作模式 ↗</span>
+            </div>
+          </article>
 
-      <a class="btn-primary" href="/apply">開始填寫保單申請表</a>
+          <!-- Join -->
+          <article class="card card-purple">
+            <div class="card-header">
+              <div class="card-icon-circle icon-purple">👥</div>
+              <div class="card-title">Join</div>
+            </div>
+            <div class="card-body">
+              成為 FarmGuard 生態系的一份子，
+              一起推動農民教育、風險管理與數位化服務，強化農村韌性。
+            </div>
+            <div class="card-footer">
+              <span>加入合作網絡 ↗</span>
+            </div>
+          </article>
 
-      <div class="footer">
-        如有任何問題，請洽承辦單位服務電話或聯絡窗口。
-      </div>
-    </div>
+          <!-- Buy -->
+          <article class="card card-green">
+            <div class="card-header">
+              <div class="card-icon-circle icon-green">🛒</div>
+              <div class="card-title">Buy</div>
+            </div>
+            <div class="card-body">
+              農民只要透過手機或電腦，線上填寫芒果保單資料，
+              由承辦單位協助後續承保與理賠申請，不需再處理厚厚一疊紙本。
+            </div>
+            <div class="card-footer">
+              <span>開始線上投保 ↗</span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact">
+      © 2025 FarmGuard 農業保險平台 · 本頁面為示意介面，實際保險內容以合作單位公告為準。
+    </footer>
   </body>
 </html>
