@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>我的投保紀錄｜FarmGuard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:#f7fafc; margin:0; }
+      .wrap { max-width: 980px; margin: 0 auto; padding: 20px; }
+      .top { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+      .card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-top:14px; }
+      table { width:100%; border-collapse: collapse; }
+      th, td { border-bottom:1px solid #edf2f7; padding:10px; text-align:left; font-size: 14px; }
+      th { color:#4a5568; font-weight:600; }
+      .btn { display:inline-block; padding:8px 14px; border-radius:999px; background:#3182ce; color:#fff; text-decoration:none; }
+      .btn2 { display:inline-block; padding:8px 14px; border-radius:999px; border:1px solid #cbd5e0; background:#fff; color:#2d3748; text-decoration:none; }
+      .muted { color:#718096; font-size: 14px; }
+      .avatar { width:32px; height:32px; border-radius:999px; }
+      .userbox { display:flex; align-items:center; gap:10px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div class="userbox">
+          {% if user.picture %}
+            <img class="avatar" src="{{ user.picture }}" alt="avatar" />
+          {% endif %}
+          <div>
+            <div><strong>{{ user.name }}</strong></div>
+            <div class="muted">{{ user.email }}</div>
+          </div>
+        </div>
+        <div>
+          <a class="btn" href="/apply">新增投保</a>
+          <a class="btn2" href="/logout">登出</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 10px;">我的投保紀錄</h3>
+
+        {% if records|length == 0 %}
+          <p class="muted">目前沒有投保紀錄。你可以先去新增投保。</p>
+        {% else %}
+          <table>
+            <thead>
+              <tr>
+                <th>投保時間</th>
+                <th>作物</th>
+                <th>地點</th>
+                <th>面積</th>
+                <th>方案</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in records %}
+                <tr>
+                  <td>{{ r.createdAt }}</td>
+                  <td>{{ r.crop }}</td>
+                  <td>{{ r.location }}</td>
+                  <td>{{ r.area }}</td>
+                  <td>{{ r.plan }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>
