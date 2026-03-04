@@ -4,6 +4,9 @@ __pycache__/
 
 # 虛擬環境（如果有）
 venv/
+
+# 環境變數檔（避免把 Google Client Secret 推上去）
+.env
 .env/
 
 # IDE 設定
